@@ -111,6 +111,7 @@ public class TransformerUtil {
      * reverse a String using accumulator
      * Because Java is not able to compile a TCE (Tail Call Elimination), it
      * will still be subject to stack overflow.
+     * No TCE -> should never use recursion in Java :-)
      * (String, String) -> String
      */
     public static String reverse(String s, String acc) {
