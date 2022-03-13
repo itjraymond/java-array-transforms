@@ -66,30 +66,27 @@ public class TransformerUtil {
                 .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
     }
 
-
+    // char[] -> char[]
     char[] reverse(char[] cs) {
         if (cs.length == 0) return cs;
         char head = cs[0];
         char[] tail = Arrays.copyOfRange(cs, 1, cs.length);
-//        return new char[]{reverse(tail)[0], head};
-//        System.arraycopy(reverse(tail), 0, new char[]{head},0, cs.length);
-//        Stream.of(reverse(tail), new char[]{head}).flatMap(Stream::of).toArray();
-//        return Stream.concat(reverse(tail), new char[]{head}).toArray(char[]::new);
         return concat(reverse(tail), head);
         // concat: [] + ['e'] + ['d'] + ['c'] + ['b'] + ['a']
-        // concat([], ['e'])        // ['e']
-        // concat(['e'], ['d'])     // ['e','d']
-        // concat(['e','d'], ['c']) // ['e','d','c']
+        // ---------------------------------------------------
+        // concat([], ['e'])        -> ['e']
+        // concat(['e'], ['d'])     -> ['e','d']
+        // concat(['e','d'], ['c']) -> ['e','d','c']
         // ...
     }
-
+    // char[] -> char[]
     char[] reverseRecursive(char[] cs) {
         if (cs.length == 0) return cs;
         char head = cs[0];
         char[] tail = Arrays.copyOfRange(cs, 1, cs.length);
         return concat(reverseRecursive(tail), head);
     }
-
+    // (char[], char) -> char[]
     private char[] concat(char[] tail, char head) {
         char[] result = new char[tail.length+1];
         // copy the tail into result
@@ -111,7 +108,9 @@ public class TransformerUtil {
     }
 
     /**
-     * reverse a String using accumulator (avoid stack overflow)
+     * reverse a String using accumulator
+     * Because Java is not able to compile a TCE (Tail Call Elimination), it
+     * will still be subject to stack overflow.
      * (String, String) -> String
      */
     public static String reverse(String s, String acc) {
@@ -124,7 +123,7 @@ public class TransformerUtil {
     }
 
     /**
-     * reverse a String but encapsulate the accumulator (avoid stack overflow)
+     * reverse a String but try to encapsulate the accumulator
      * String -> String
      */
     // ATTEMPT ONE
@@ -135,12 +134,12 @@ public class TransformerUtil {
 //            String head = str.substring(0,1);
 //            String tail = str.substring(1);
 //            acc = head + acc;
-//            return apply(tail, acc);
+//            return rev.apply(tail, acc); // COMPILE ERROR rev is not defined.
 //        };
 //
 //        return rev.apply(s,"");
 //    }
-    // ATTEMPT TWO - encapsulate the accumulator
+    // ATTEMPT TWO - Hide the acc empty string from caller.
     // String -> String
     public static String reverse2(String s) {
         return reverse(s, "");
@@ -156,6 +155,7 @@ public class TransformerUtil {
             acc = head + acc;
             return TransformerUtil.rev.apply(tail, acc);
     };
+    // Hide the empty acc "" to the caller
     // String -> String
     public static String reverse3(String s) {
         return TransformerUtil.rev.apply(s,"");
