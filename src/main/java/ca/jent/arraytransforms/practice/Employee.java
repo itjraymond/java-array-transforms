@@ -2,6 +2,15 @@ package ca.jent.arraytransforms.practice;
 
 import java.util.Random;
 
+/**
+ * What can we put into an interface? (Java 17)
+ * 1. member variable
+ * 2. static member variable
+ * 3. static method
+ * 4. default method impl.
+ * 5. private method with impl.
+ * 6. abstract method
+ */
 public interface Employee {
 
     Double gst = 5.0;
