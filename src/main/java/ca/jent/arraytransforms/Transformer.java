@@ -32,28 +32,32 @@ public class Transformer {
         }
     }
 
-    // could name this according to api.  E.g. filterNegativeAndDistinct()
+    // int[] -> int[]
     public int[] removeNegativeAndDuplicates(int[] xs) {
         return Arrays.stream(xs).distinct().filter(i -> i > 0).toArray();
     }
+    // int[] -> int[]
     public int[] removeDuplicates(int[] xs) {
         return Arrays.stream(xs).distinct().toArray();
     }
 
+    // int[] -> int[]
     public int[] removeNegativeAndZero(int[] xs) {
         return Arrays.stream(xs).filter(i -> i>0).toArray();
     }
 
+    // int[] -> String[]
     public String[] mapToString(int[] xs) {
 //        return Arrays.stream(xs).mapToObj(x -> String.valueOf(x)).toArray(size -> new String[size]);
         return Arrays.stream(xs).mapToObj(String::valueOf).toArray(String[]::new);
     }
 
-    // convert stream<Integer> to int[]
+    // List<Integer> -> int[]
     public int[] toInteger(List<Integer> list) {
         return list.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    // int[] -> List<String>
     public List<String> mapToListOfString(int[] xs) {
         return Arrays.stream(xs).mapToObj(String::valueOf).collect(toList());
     }
@@ -66,6 +70,7 @@ public class Transformer {
     //              "b" -> 2 (even)
     //              "c" -> 1 (odd)
     // return 2 characters having a odd count
+    // String -> long
     public static long countRepeatedCharThatAreOdd(String s) {
         return Arrays.stream(s.split(""))
               .collect(groupingBy(c -> c, counting()))
@@ -74,10 +79,12 @@ public class Transformer {
                 .filter(c -> c %2 != 0)
                 .count();
     }
+    // String -> Map<String,Long>
     public static Map<String, Long> returnRepeatedCharWithCount(String s) {
         return Arrays.stream(s.split(""))
                 .collect(groupingBy(Function.identity(), counting()));
     }
+    // String -> Map<String,Long>
     public static Map<String, Long> returnRepeatedCharWithCountGT1(String s) {
         return Arrays.stream(s.split(""))
                 .collect(groupingBy(Function.identity(), counting()))
@@ -86,7 +93,7 @@ public class Transformer {
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    // List<String> -> Map<Boolean, String> (true->even, false-> odd)
+    // List<String> -> Map<Boolean, String> (true->even length, false-> odd length)
     public static Map<Boolean, List<String>> partitionAccordingToEvenOddLength(List<String> list) {
         return list
                 .stream()
@@ -94,6 +101,7 @@ public class Transformer {
     }
 
     // count unique words
+    // String -> Map<String, Long>
     public static Map<String, Long> countWords(String s) {
         return Arrays.stream(s.split(" "))
                 .collect(groupingBy(w -> w, counting()));
@@ -106,6 +114,7 @@ public class Transformer {
         private String name;
     }
 
+    // int[] -> List<Dto>
     public List<Dto> mapToListOfDto(int[] xs) {
         return Arrays.stream(xs)
                      .mapToObj(x -> new Dto(String.valueOf(x), "Joss"))
