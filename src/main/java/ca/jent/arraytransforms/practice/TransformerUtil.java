@@ -1,5 +1,7 @@
 package ca.jent.arraytransforms.practice;
 
+import com.sun.jdi.CharType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -65,6 +67,8 @@ public class TransformerUtil {
         return Arrays.stream(s.split(" "))
                 .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
     }
+
+
 
     // char[] -> char[]
     char[] reverse(char[] cs) {
@@ -161,6 +165,23 @@ public class TransformerUtil {
     public static String reverse3(String s) {
         return TransformerUtil.rev.apply(s,"");
     }
+
+    /**
+     * Just a curious concept:  Can Java define a algebraic type such as PositiveInteger
+     * such that if trying to construct such type it would give compile errors for:
+     * new PositiveInteger(-2)
+     * Can we leverage char (range[0..65,535] (hence cannot have -2
+     */
+//    public void dothis() {
+//        class PositiveInteger {
+//
+//            public static final PositiveInteger getInstance(Integer i) {
+//                int v = i.intValue();
+//                char c = Character.forDigit(-2, 10);
+//                return null;
+//            }
+//        }
+//    }
 
     public static void main(String[] args) {
         TransformerUtil t  = new TransformerUtil();
