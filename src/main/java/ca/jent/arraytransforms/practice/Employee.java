@@ -16,10 +16,12 @@ public interface Employee {
     Double gst = 5.0;
     static String dummyName = "John Doe";
 
+    // We can have a static method with impl.
     static Double calculatePayWithGst(Double pay) {
         return pay * gst;
     }
 
+    // We can have an abstract method with default impl.
     default Double calculateBonus(Double pay, Boolean flag) {
         int bonus = supplyRandomBonus();
         if (flag) {
@@ -28,10 +30,11 @@ public interface Employee {
         return calculatePayWithGst(pay);
     }
 
+    // Java 17: yes, we can have private methods with impl.
     private int supplyRandomBonus() {
         return (new Random()).nextInt(100);
     }
 
-    Double getSalary();
+    Double getSalary();  // abstract method
 
 }

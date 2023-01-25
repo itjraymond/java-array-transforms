@@ -1,14 +1,17 @@
 package ca.jent.arraytransforms.practice;
 
-import com.sun.jdi.CharType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TransformerUtil {
 
@@ -26,13 +29,61 @@ public class TransformerUtil {
 
     // int[] -> int[]
     // remove negative and duplicate integer
-    public Function<Integer[], Integer[]> removeNegativeAndDuplicate =  i -> i; // TODO later
+    public Function<Integer[], Integer[]> removeNegativeAndDuplicate =  is ->
+            Arrays.stream(is).filter(x -> x > 0).distinct().toArray(Integer[]::new);
+
+    // The above is composable with some re-manipulation
+    public Function<int[], int[]> removeNeg = xs -> removeNegative(xs);
+    public Function<int[], int[]> removeDup = xs -> removeDuplicate(xs);
+    public Function<int[], int[]> removeNegAndDup = xs -> removeNeg.andThen(removeDup).apply(xs);
 
     // int[] -> String[]
     public String[] mapIntToString(int[] xs) {
         return Arrays.stream(xs).mapToObj(String::valueOf).toArray(String[]::new);
     }
+    // OR
+    public Function<int[], String[]> mapPrimitiveIntArrayToString = (int[] xs) ->
+            Arrays.stream(xs).mapToObj(String::valueOf).toArray(String[]::new);
 
+    // List<Integer> -> Integer[]
+    public Function<List<Integer>, Integer[]> mapListOfIntegerToIntegerArray = is ->
+            is.toArray(Integer[]::new);
+
+    // List<Integer> -> int[]
+    public Function<List<Integer>, int[]> mapListOfIntegerToPrimitiveArray = is ->
+            is.stream().mapToInt(i -> i).toArray();
+
+    // List<Integer> -> String[]
+    public Function<List<Integer>, String[]> mapListOfIntegerToArrayString = is ->
+            is.stream().map(Object::toString).toArray(String[]::new);
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Planet {
+        private String name;
+        private int size;
+    }
+
+    public Function<List<Planet>, Planet[]> mapListOfPlanetToPlanetArray = ps ->
+            ps.toArray(Planet[]::new);
+
+    // List<A> -> A[]
+    public <A> A[] mapListOfAsToAsArray(List<A> as, Class<A> clazz) {
+        A[] arr = (A[]) Array.newInstance(clazz, as.size());
+        return as.toArray(arr);
+    }
+
+    // A[] -> List<A>
+    public <A> List<A> mapArrayOfAsToListOfAs(A[] as) {
+        return Arrays.stream(as).toList();
+    }
+
+    public Planet[] mapListOfPlanetToPlanetArrayUsingPolymorphicMethod(List<Planet> ps, Class<Planet> clazz) {
+        return mapListOfAsToAsArray(ps, clazz);
+    }
+
+    // ****** SEE ABOVE FOR POLYMORPHIC METHOD (OR GENERIC METHOD) *********
     // convert List<> to []
     // List<A> -> A[]
 //    public <A> A[] mapToA(List<A> list) {
@@ -52,9 +103,8 @@ public class TransformerUtil {
     //              "c" -> 1 (odd)
     // So only 2 chars "a" and "c" when grouped has a odd count.
     public static long countRepeatedCharThatIsRepeatedOddTime(String s) {
-        char[] chars = s.toCharArray();
         return Arrays.stream(s.split(""))
-                .collect(Collectors.groupingBy(c -> c, Collectors.counting()))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .values()
                 .stream()
                 .filter(count -> count % 2 != 0)
@@ -65,7 +115,7 @@ public class TransformerUtil {
     // String -> Map<String, Long>
     public static Map<String, Long> countWordsOccurence(String s) {
         return Arrays.stream(s.split(" "))
-                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 
 
@@ -149,6 +199,10 @@ public class TransformerUtil {
     public static String reverse2(String s) {
         return reverse(s, "");
     }
+    // OR IN JUST ONE LINE
+    public static String reverseString(String s) {
+        return new StringBuilder(s).reverse().toString();
+    }
 
     // ATTEMPT THREE - using accumulator.  Notice private (so only met to be used within TransformerUtil
     // (String, String) -> String
@@ -163,6 +217,7 @@ public class TransformerUtil {
     // Hide the empty acc "" to the caller
     // String -> String
     public static String reverse3(String s) {
+        if (s == null) return s;
         return TransformerUtil.rev.apply(s,"");
     }
 
@@ -201,6 +256,36 @@ public class TransformerUtil {
         System.out.println(reverse2("hijklmn"));
         System.out.println(reverse3("jklmnopqrstuvwxyz"));
 
+        Integer[] is = new Integer[] {1,2,3,4};
+        Integer[] iis = Arrays.stream(is).filter(x -> x > 0).toArray(Integer[]::new);
+
+        String[] strs = t.mapPrimitiveIntArrayToString.apply(new int[]{1, 2, 3}); // strs = ["1", "2", "3"]
+
+        String[] strings = t.mapListOfIntegerToArrayString.apply(List.of(3, 4, 5)); // strings = ["3", "4", "5"]
+
+        var ps = List.of(
+                new Planet("Earth", 10),
+                new Planet("Jupiter", 20)
+        );
+
+        Planet[] planets = t.mapListOfAsToAsArray(ps, Planet.class);
+
+        for(int i = 0; i<planets.length; i++) {
+            System.out.println(planets[i].getName());
+        }
+
+        @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
+        class Button {
+            private String name;
+        }
+
+        Button[] buttons = t.mapListOfAsToAsArray(List.of(new Button("green_button")), Button.class);
+
+        for(int i = 0; i<buttons.length; i++) {
+            System.out.println(buttons[i].getName());
+        }
     }
 
 

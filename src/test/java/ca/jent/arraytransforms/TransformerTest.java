@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,9 @@ class TransformerTest {
         Arrays.stream(ys).forEach(System.out::println);
 
         Assertions.assertArrayEquals(expected, ys);
+        Collection<String> stra = new ArrayList<String>();
     }
+
 
     @Test
     void removeNegativeAndZero() {

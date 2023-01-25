@@ -11,13 +11,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -26,10 +27,11 @@ public class Transformer {
 
     public static void main(String[] args) {
         Transformer t = new Transformer();
+        // int[] -> String[]
         String[] xs = t.mapToString(createIntArray(ARRAY_SCENARIO.ORDERED_N));
 
-        for (int i=0; i<xs.length; i++) {
-            System.out.println(xs[i]);
+        for (String x : xs) {
+            System.out.println(x);
         }
     }
 
@@ -49,18 +51,24 @@ public class Transformer {
 
     // int[] -> String[]
     public String[] mapToString(int[] xs) {
-//        return Arrays.stream(xs).mapToObj(x -> String.valueOf(x)).toArray(size -> new String[size]);
-        return Arrays.stream(xs).mapToObj(String::valueOf).toArray(String[]::new);
+        IntFunction<String[]> generator = (size) -> new String[size];
+        // return Arrays.stream(xs).mapToObj(x -> String.valueOf(x)).toArray(size -> new String[size]);
+         return Arrays.stream(xs).mapToObj(x -> String.valueOf(x)).toArray(generator);
+//        return Arrays.stream(xs).mapToObj(String::valueOf).toArray(String[]::new);
     }
 
     // List<Integer> -> int[]
     public int[] toInteger(List<Integer> list) {
+        ToIntFunction<Integer> mapper = x -> x.intValue();
         return list.stream().mapToInt(Integer::intValue).toArray();
+//        return list.stream().mapToInt(mapper).toArray();
     }
 
     // int[] -> List<String>
     public List<String> mapToListOfString(int[] xs) {
-        return Arrays.stream(xs).mapToObj(String::valueOf).collect(toList());
+        IntFunction<String> mapper = x -> String.valueOf(x);
+//        return Arrays.stream(xs).mapToObj(String::valueOf).collect(toList());
+        return Arrays.stream(xs).mapToObj(mapper).collect(toList());
     }
 
     // grouping example
@@ -99,6 +107,15 @@ public class Transformer {
         return list
                 .stream()
                 .collect(partitioningBy(s -> s.length() % 2 == 0));
+    }
+
+    // Given a list of number (neg and pos), count how many are neg, how many are pos. Zero is neither neg or pos.
+    public static Map<Boolean, Long> countNegAndPos(List<Integer> list) {
+        // partition: true -> count of pos
+        //            false -> count of neg
+        return list.stream()
+                .filter(x -> x != 0)
+                .collect(partitioningBy(x -> x > 0, counting()));
     }
 
     // count unique words
